@@ -21,20 +21,6 @@ const localizer = dateFnsLocalizer({
     startOfWeek,
     getDay,
     locales,
-    parse: (dateString) => new Date(dateString),
-    startOfWeek: () => new Date(),
-    getDay: (date) => date.getDay(),
-});
-
-
-const sanitizeJson = testjson.map((el) => {
-    return {
-        title: el.job_id.jobRequest_Title,
-        start: new Date(el.start),
-        end: new Date(el.end),
-        interViewer: el.user_det.handled_by.firstName,
-        time: `${new Date(el.start).getTime()} ${new Date(el.end).getTime()}`,
-    };
 });
 
 function getToDate(date) {
@@ -71,10 +57,7 @@ for (const property in filteredJson) {
 //console.log(res);
 
 function App() {
-    const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
-    const [allEvents, setAllEvents] = useState(sanitizeJson);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit modal state
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalPosition, setModalPosition] = useState({ right: 0, top: 0 });
     const [currentView, setCurrentView] = useState("day");
@@ -192,6 +175,7 @@ function App() {
             }))
         );
     };
+    console.log(mergeEvents);
     // Handle click on an event and open the modal
     const handleSelectEvent = (event) => {
         setSelectedEvent(event);
@@ -204,15 +188,7 @@ function App() {
         setIsModalOpen(false);
         setSelectedEvent(null);
     };
-    const openEditModal = (event) => {
-        setSelectedEvent(event);
-        setIsEditModalOpen(true);
-    };
-
-    const closeEditModal = () => {
-        setIsEditModalOpen(false);
-        setSelectedEvent(null);
-    };
+   
     return (
         <div className="App">
             <Calendar
@@ -323,15 +299,7 @@ function App() {
         </div>
     );
 }
-const cache = new Map();
-const checkIsPresent = (event) => {
-    console.log(event);
-    if (cache.get(event.start)) {
-        cache.set(event.start, cache.get(event.start) + 1);
-    } else {
-        cache.set(event.start, 1);
-    }
-};
+
 
 
 

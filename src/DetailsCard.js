@@ -5,15 +5,12 @@ import "./App.css";
 import Modal from "react-modal";
 import moment from 'moment';
 const DetailsCard = ({ event }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+   
     const [selectedEvent, setSelectedEvent] = useState(null);
-    const [modalPosition, setModalPosition] = useState({ right: 0, top: 0 });
+    
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setSelectedEvent(null);
-    };
     const handleEdit = (event) => {
+        console.log(selectedEvent);
         setIsEditModalOpen(true);
         setSelectedEvent(event);
     };
