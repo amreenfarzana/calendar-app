@@ -161,7 +161,7 @@
         "score": {
             "P": 8
         },
-        "link": "http://www.hhh.com",
+        "link": "http://www.test.com",
         "user_det": {
             "id": 1,
             "question_score": null,
@@ -211,7 +211,7 @@
         "score": {
             "P": 8
         },
-        "link": "http://www.hhh.com",
+        "link": "http://www.test1.com",
         "user_det": {
             "id": 1,
             "question_score": null,

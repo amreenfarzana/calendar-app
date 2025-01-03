@@ -115,7 +115,7 @@ const ModalCard = ({ event, isEdit, setedit }) => {
                     </div>
                     <div style={{ flex: 1, gap: "20px", alignItems: "center", display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <img src={googlemeet} alt="Googlemeet" style={{ borderRadius: "5px", width: "60%", height: "auto", marginTop: "30px", border: "1px solid #B2beb5", padding: "10px" }} />
-                        <button className='buttonjoin' style={{ borderRadius: "5px", marginTop: "2px" }} onClick={() => window.location.href = "https://www.example.com"}>
+                        <button className='buttonjoin' style={{ borderRadius: "5px", marginTop: "2px" }} onClick={() => window.location.href = event.link}>
                             JOIN
                         </button>
                     </div>
