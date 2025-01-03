@@ -11,10 +11,10 @@ import testjson from "./calendarfromtoenddate.json";
 import Modal from "react-modal";
 import moment from 'moment';
 import DetailsCard from "./DetailsCard";
+import ModalCard from "./ModalCard";
 const locales = {
     "en-US": require("date-fns/locale/en-US"),
 };
-
 const localizer = dateFnsLocalizer({
     format,
     parse,
@@ -22,14 +22,12 @@ const localizer = dateFnsLocalizer({
     getDay,
     locales,
 });
-
 function getToDate(date) {
     return `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date
         .getDate()
         .toString()
         .padStart(2, "0")}/${date.getFullYear()}`;
 }
-
 const filteredJson = testjson.reduce((acc, el) => {
     const date = getToDate(new Date(el.start));
     if (acc[date]) {
@@ -39,9 +37,7 @@ const filteredJson = testjson.reduce((acc, el) => {
     }
     return acc;
 }, {});
-
 const res = [];
-
 for (const property in filteredJson) {
     const event = filteredJson[property];
     const obj = {
@@ -53,27 +49,23 @@ for (const property in filteredJson) {
     };
     res.push(obj);
 }
-
-//console.log(res);
-
 function App() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [modalPosition, setModalPosition] = useState({ right: 0, top: 0 });
     const [currentView, setCurrentView] = useState("day");
+    const [isflag, setIsFlag] = useState(false);
+    const [isedit, setIsEdit] = useState(false);
     // Function to merge events with the same start and end times and count meetings
     const CustomToolbar = ({ onNavigate, label, onView }) => {
-
         return (
             <div style={{ display: "flex", justifyContent: "space-between", padding: "5px", alignItems: "center" }}>
-
                 <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                     <button className="buttonarrow" onClick={() => onNavigate("PREV")}>{"<"}</button>
                     <button className="buttonarrow" onClick={() => onNavigate("NEXT")}>{">"}</button>
                     <span style={{ display: "flex", flexGrow: 1, textAlign: "center", fontSize: "20px", color: "#0072C6", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", padding: "8px" }}>25</span>
                     <span style={{ display: "flex", flexGrow: 1, textAlign: "center", paddingLeft: "500px", fontSize: "30px" }}>{label}</span>
                 </div>
-
                 <div className='rbc-btn-group'>
                     <button
                         onClick={() => { onView("day"); setCurrentView("day"); }}
@@ -109,7 +101,6 @@ function App() {
                     >
                         Week
                     </button>
-
                     <button
                         onClick={() => { onView("month"); setCurrentView("month"); }}
                         style={{
@@ -148,47 +139,30 @@ function App() {
             </div>
         );
     };
-    const mergeEvents = (eventsList) => {
-        const groupedEvents = {};
-        // Group event
-        eventsList.forEach((event) => {
-            const eventKey = `${event.start.getTime()}-${event.end.getTime()}`;
-            if (!groupedEvents[eventKey]) {
-                groupedEvents[eventKey] = [];
-            }
-            groupedEvents[eventKey].push(event);
-        });
-        // sort event
-        const mergedEvents = Object.keys(groupedEvents).map((key) => {
-            const group = groupedEvents[key];
-            group.sort((a, b) => a.start - b.start);
-            return {
-                count: group.length,
-                events: group,
-            };
-        });
-        // Flatten the merged events into a single array
-        return mergedEvents.flatMap((group) =>
-            group.events.map((event) => ({
-                ...event,
-                count: group.count,
-            }))
-        );
-    };
-    console.log(mergeEvents);
-    // Handle click on an event and open the modal
     const handleSelectEvent = (event) => {
-        setSelectedEvent(event);
-        const mouseX = event.clientX;
-        const mouseY = event.clientY;
-        setModalPosition({ right: mouseX, top: mouseY + 10 });
-        setIsModalOpen(true);
+        console.log("handlese");
+        if (event.data.length > 1) {
+            setSelectedEvent(event);
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+            setModalPosition({ right: mouseX, top: mouseY + 10 });
+            setIsModalOpen(true);
+            setIsFlag(false);
+        }
+        else {
+            setSelectedEvent(event);
+            setIsModalOpen(false);
+            setIsFlag(true);
+            console.log("test");
+            console.log(selectedEvent);
+            console.log(isflag)
+            console.log("test 1");
+        }
     };
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedEvent(null);
     };
-   
     return (
         <div className="App">
             <Calendar
@@ -201,8 +175,11 @@ function App() {
                     style: {
                         color: "black",
                         borderRadius: "4px",
-                        width: "100%",
+                        width: "85%",
                         whiteSpace: "pre-line",
+                        marginTop: "62px",
+                        padding: "0px",
+
                     },
                 })}
                 defaultView={currentView}
@@ -217,7 +194,8 @@ function App() {
                 components={{
                     toolbar: (props) => <CustomToolbar {...props} views={['day', 'week', 'month']} />,
                     month: {
-                        event: Tile,
+                        event: (props) => <Tile {...props} selectedEvent={selectedEvent} setIsEdit={setIsEdit} />,
+
                     },
                 }}
                 onSelectEvent={handleSelectEvent}
@@ -245,7 +223,7 @@ function App() {
                         width: "20%",
                         height: "300px",
                         transform: "translate(137%, -20%)",
-                        padding: "20px",
+                        padding: "10px",
                         backgroundColor: "white",
                         borderRadius: "10px",
                         boxShadow: "0px 4px 18px rgba(0, 0, 0, 0.2)",
@@ -254,11 +232,10 @@ function App() {
                         overflow: "auto",
                         overflowY: 'auto',
                     },
-
                 }}
             >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
-                    <p style={{ margin: 0, color: "black", padding: "10px 0" }}>Meetings</p>
+                <div style={{ display: 'flex', paddingBottom: "5px", justifyContent: 'space-between', alignItems: 'center', position: 'relative', borderBottom: "1px solid rgb(244, 227, 227)" }}>
+                    <p style={{ margin: 0, color: "black", padding: "0px 2px" }}>Meetings</p>
                     <button
                         onClick={closeModal}
                         style={{
@@ -268,11 +245,12 @@ function App() {
                             cursor: "pointer",
                             padding: 0,
                             position: "absolute",
-                            top: "2px",
+                            top: "0px",
+                            bottom: "2px",
                             right: "2px",
                             color: "#fff",
-                            width: "30px",
-                            height: "30px",
+                            width: "25px",
+                            height: "25px",
                             borderRadius: "50%",
                             backgroundColor: "#0072C6",
                             display: "flex",
@@ -284,46 +262,44 @@ function App() {
                         <i className="fas fa-times" />
                     </button>
                 </div>
-
                 {selectedEvent && (
                     <div>
                         <div>
-
                             {selectedEvent.data.map((event, idx) => (
-                                <DetailsCard key={idx} event={event} />
+                                <DetailsCard key={idx} event={event} isflag={isflag} />
                             ))}
                         </div>
                     </div>
                 )}
             </Modal>
+            {selectedEvent && selectedEvent.data.length === 1 && (
+                <ModalCard event={selectedEvent.data[0]} isEdit={isedit} setedit={setIsEdit} />
+            )}
         </div>
     );
 }
-
-
-
-
-const Tile = ({ event }) => {
-    console.log("event");
+const Tile = ({ event, setIsEdit }) => {
     console.log(event);
+    const handleTile = (e) => {
+        setIsEdit(true);
+    }
     return (
         <>
-            <div className="custom-comp" style={{
+            <div className="custom-comp" onClick={handleTile} style={{
                 position: "relative", fontWeight: "normal"
             }}>
-                <p>{event.title}</p>
-                <p>Interviewer: {event.interViewer}</p>
-                <p>Time: {moment(event.start).format('h A')} -  {moment(event.end).add(20, 'minutes').format('h A')}</p>
-
+                <p style={{ margin: "5px" }}>{event.title}</p>
+                <p style={{ margin: "5px" }}>Interviewer: {event.interViewer}</p>
+                <p style={{ margin: "5px" }}>Time: {moment(event.start).format('h A')} -  {moment(event.end).add(20, 'minutes').format('h A')}</p>
                 <div
                     style={{
                         position: "absolute",
-                        top: -18,
+                        top: -5,
                         right: 0,
                         color: "black",
-                        border: "1px solid yellow",
+                        border: "5px solid #ffdf00",
                         borderRadius: "50%",
-                        background: "#fff954",
+                        background: "#ffdf00",
                         width: "20px",
                         height: "20px",
                         display: "flex",
